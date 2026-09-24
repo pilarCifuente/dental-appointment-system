@@ -1,0 +1,99 @@
+CREATE DATABASE dental_appointment_system;
+
+USE dental_appointment_system;
+
+/*TABLES*/
+
+CREATE TABLE roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role_id INT NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME
+);
+
+CREATE TABLE patients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    dni VARCHAR(20) NOT NULL UNIQUE,
+    phone VARCHAR(30),
+    birth_date DATE,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME
+);
+
+CREATE TABLE dentists (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    license_number VARCHAR(50) NOT NULL UNIQUE,
+    phone VARCHAR(30),
+    specialty VARCHAR(100),
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME
+);
+
+CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    dentist_id INT NOT NULL,
+    appointment_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    status ENUM('PENDING', 'COMPLETED', 'ABSENT', 'CANCELLED') NOT NULL,
+    reason VARCHAR(255),
+    notes VARCHAR(500),
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME
+);
+
+CREATE TABLE availability (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    dentist_id INT NOT NULL,
+    day_of_week VARCHAR(20) NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+/*RELATIONS*/
+
+ALTER TABLE users
+ADD CONSTRAINT fk_users_role
+FOREIGN KEY (role_id) REFERENCES roles(id);
+
+ALTER TABLE patients
+ADD CONSTRAINT fk_patients_user
+FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE dentists
+ADD CONSTRAINT fk_dentists_user
+FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE appointments
+ADD CONSTRAINT fk_appointments_patient
+FOREIGN KEY (patient_id) REFERENCES patients(id);
+
+ALTER TABLE appointments
+ADD CONSTRAINT fk_appointments_dentist
+FOREIGN KEY (dentist_id) REFERENCES dentists(id);
+
+ALTER TABLE availability
+ADD CONSTRAINT fk_availability_dentist
+FOREIGN KEY (dentist_id) REFERENCES dentists(id);
+
+/* ROLES */
+
+INSERT INTO roles (name)
+VALUES 
+    ('PATIENT'),
+    ('DENTIST');
